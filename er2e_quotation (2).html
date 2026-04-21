@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER2E Quotation Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f6f9;color:#111;min-height:100vh}
+nav{background:#073d1e;padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.logo{color:#fff;font-weight:600;font-size:15px;padding:14px 0;display:flex;align-items:center;gap:10px;margin-right:24px}
+.logo-box{background:#0a5c2e;border:2px solid #2d9e5f;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+.nav-btn{background:none;border:none;color:rgba(255,255,255,.55);padding:16px 14px;cursor:pointer;font-size:12px;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.nav-btn.active{color:#fff;border-bottom-color:#2d9e5f;font-weight:500}
+.body{padding:24px;max-width:900px;margin:0 auto}
+.card{background:#fff;border:.5px solid #d4e8da;border-radius:12px;padding:20px 22px;margin-bottom:18px}
+.sec-title{font-size:14px;font-weight:600;color:#073d1e;margin-bottom:14px}
+.lbl{display:block;font-size:11px;font-weight:600;color:#4a7a5a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid #cce0d4;border-radius:8px;font-size:13px;outline:none;background:#fff;font-family:inherit;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:#0a5c2e}
+textarea{resize:vertical;min-height:65px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
+.btn{background:#0a5c2e;color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
+.btn-outline{background:#fff;color:#0a5c2e;border:1px solid #0a5c2e;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-danger{background:#fff;color:#c0392b;border:1px solid #fca5a5;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn-sm{background:#0a5c2e;color:#fff;border:none;border-radius:7px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit}
+.item-row{background:#f8faf8;border:1px solid #d4e8da;border-radius:10px;padding:14px 14px 14px 44px;margin-bottom:10px;position:relative}
+.item-num{position:absolute;top:14px;left:12px;width:24px;height:24px;background:#073d1e;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.remove-btn{position:absolute;top:10px;right:10px;background:none;border:none;color:#bbb;font-size:20px;cursor:pointer;line-height:1}
+.remove-btn:hover{color:#c0392b}
+.quot-preview{background:#073d1e;color:#fff;padding:9px 16px;border-radius:8px;font-family:monospace;font-size:14px;font-weight:600;letter-spacing:.5px;display:inline-block;margin-bottom:14px}
+.staff-card{border:2px solid transparent;border-radius:10px;padding:10px 14px;cursor:pointer;background:#f8faf8;transition:all .2s;text-align:center}
+.staff-card:hover{border-color:#9fd4b0;background:#f0fdf4}
+.staff-card.selected{border-color:#0a5c2e;background:#e8f5ee}
+.staff-card .s-name{font-size:13px;font-weight:600;color:#073d1e}
+.staff-card .s-team{font-size:11px;color:#888;margin-top:2px}
+.staff-card .s-running{font-size:11px;color:#0a5c2e;font-family:monospace;margin-top:3px;font-weight:600}
+.tc-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;background:#f8faf8;border:1px solid #e8e8e8;border-radius:8px;padding:9px 12px}
+.tc-num{font-weight:700;color:#073d1e;min-width:20px;font-size:13px;margin-top:1px}
+.tc-fixed{font-size:13px;color:#444;line-height:1.5}
+.min-inv-badge{display:inline-block;background:#e8f5ee;color:#0a5c2e;border:1px solid #9fd4b0;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;margin-left:4px}
+.transport-badge{display:inline-block;background:#e8f5ee;color:#0a5c2e;border:1px solid #9fd4b0;border-radius:6px;padding:2px 10px;font-size:13px;font-weight:700;margin:0 4px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.setting-row:last-child{border:none}
+.stab-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e0e0e0;background:#fff;color:#666;font-family:inherit}
+.stab-btn.active{background:#073d1e;color:#fff;border-color:#073d1e}
+/* PIN OVERLAY */
+#pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#pin-overlay.open{display:flex}
+.pin-box{background:#fff;border-radius:24px;padding:32px 28px;width:min(340px,90vw);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.pin-title{font-size:18px;font-weight:700;color:#073d1e;margin-bottom:6px}
+.pin-sub{font-size:13px;color:#888;margin-bottom:24px}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:24px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #cce0d4;background:#fff;transition:all .2s}
+.pin-dot.filled{background:#073d1e;border-color:#073d1e}
+.pin-dot.error{background:#e74c3c;border-color:#e74c3c}
+.pin-dot.success{background:#2d9e5f;border-color:#2d9e5f}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.pin-key{height:64px;border-radius:14px;border:1.5px solid #e8e8e8;background:#f8f8f8;font-size:22px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;color:#111;user-select:none}
+.pin-key:active,.pin-key:hover{background:#e8f5ee;border-color:#9fd4b0;color:#073d1e}
+.pin-key.del{font-size:18px;color:#888}
+.pin-key.bio{font-size:24px}
+.pin-err{font-size:13px;color:#e74c3c;min-height:18px;margin-bottom:8px}
+.pin-cancel{font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit}
+/* TOAST */
+#toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-10px);background:#0a5c2e;color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;opacity:0;pointer-events:none;transition:all .25s;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:600px){.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}.grid3,.grid4{grid-template-columns:1fr}.body{padding:14px 12px}}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- PIN OVERLAY -->
+<div id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-title" id="pin-title">Settings</div>
+    <div class="pin-sub" id="pin-sub">Enter your 4-digit PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-grid" id="pin-grid">
+      <div class="pin-key" onclick="pinKey('1')">1</div>
+      <div class="pin-key" onclick="pinKey('2')">2</div>
+      <div class="pin-key" onclick="pinKey('3')">3</div>
+      <div class="pin-key" onclick="pinKey('4')">4</div>
+      <div class="pin-key" onclick="pinKey('5')">5</div>
+      <div class="pin-key" onclick="pinKey('6')">6</div>
+      <div class="pin-key" onclick="pinKey('7')">7</div>
+      <div class="pin-key" onclick="pinKey('8')">8</div>
+      <div class="pin-key" onclick="pinKey('9')">9</div>
+      <div class="pin-key bio" id="bio-btn" onclick="tryBiometric()" style="display:none">🪪</div>
+      <div class="pin-key" onclick="pinKey('0')">0</div>
+      <div class="pin-key del" onclick="pinDel()">⌫</div>
+    </div>
+    <button class="pin-cancel" onclick="closePinOverlay()">Cancel</button>
+  </div>
+</div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-box"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 14V6l6-4 6 4v8H2z" stroke="#7ccc9e" stroke-width="1.5" fill="none"/><rect x="5.5" y="9" width="2" height="5" rx=".5" fill="#7ccc9e"/><rect x="8.5" y="9" width="2" height="5" rx=".5" fill="#7ccc9e"/></svg></div>
+    ER2E Quotation
+  </div>
+  <button class="nav-btn active" onclick="switchTab('form')">New Quotation</button>
+  <button class="nav-btn" onclick="switchTab('saved')">Saved Quotes</button>
+  <button class="nav-btn" onclick="requestSettings()">⚙ Settings</button>
+</nav>
+
+<!-- FORM -->
+<div id="tab-form" class="body">
+  <div class="card">
+    <div class="sec-title">Quotation Number</div>
+    <div class="quot-preview" id="quot-preview">—</div>
+    <div class="field"><label class="lbl">Client Acronym</label><input type="text" id="q-acronym" placeholder="e.g. MII" oninput="updateQuotNo()" style="text-transform:uppercase;max-width:180px"></div>
+    <label class="lbl" style="margin-bottom:10px">Select Staff</label>
+    <div class="grid4" id="staff-cards"></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="field"><label class="lbl">Month / Year</label><input type="month" id="q-month" oninput="updateQuotNo()"></div>
+      <div class="field"><label class="lbl">Revision</label>
+        <select id="q-revision" onchange="updateQuotNo()">
+          <option value="00">00 — Original</option><option value="01">01 — Rev 1</option>
+          <option value="02">02 — Rev 2</option><option value="03">03 — Rev 3</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec-title">Client Information</div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Client Company Name</label><input type="text" id="c-name" placeholder="e.g. MACE INSTRUMENTATION INDUSTRIES"></div>
+      <div class="field"><label class="lbl">Attention To</label><input type="text" id="c-attn" placeholder="e.g. Mr. Lim Kok Min"></div>
+    </div>
+    <div class="field"><label class="lbl">Client Address</label><textarea id="c-addr" rows="3" placeholder="Street, City, Postcode, State"></textarea></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Tel</label><input type="text" id="c-tel" placeholder="+604-4891688"></div>
+      <div class="field"><label class="lbl">Email</label><input type="email" id="c-email" placeholder="client@example.com"></div>
+    </div>
+    <div class="field">
+      <label class="lbl">Transport Location</label>
+      <select id="c-location" onchange="onLocationChange()"><option value="">-- Select Location --</option></select>
+      <div id="min-inv-display" style="margin-top:6px;font-size:12px;color:#0a5c2e;display:none">
+        Min Invoice: <span id="min-inv-val" style="font-weight:700"></span> &nbsp;|&nbsp; Transport Fee: <span id="transport-fee-val" style="font-weight:700"></span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="sec-title" style="margin:0">Waste Items</div>
+      <button class="btn-outline" onclick="addItem()">+ Add Item</button>
+    </div>
+    <div id="items-container"></div>
+  </div>
+  <div class="card">
+    <div class="sec-title">Terms & Conditions</div>
+    <div id="tc-container"></div>
+  </div>
+  <div class="card">
+    <div class="sec-title">Signed By (ER2E)</div>
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:10px 0">
+      <div style="position:relative;width:180px;height:90px;flex-shrink:0">
+        <img src="https://i.imgur.com/9DaSz3O.png" style="position:absolute;bottom:0;left:0;height:75px;mix-blend-mode:multiply;opacity:0.85" onerror="this.style.display='none'">
+        <img src="https://i.imgur.com/cWMBOVb.png" style="position:absolute;bottom:-8px;left:55px;height:88px;mix-blend-mode:multiply;opacity:0.75" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div style="border-top:1.5px solid #111;width:200px;margin-bottom:5px"></div>
+        <div style="font-weight:700;font-size:14px">ROMY EADUKA BIN SHAHRUDDIN</div>
+        <div style="font-size:12px;color:#555;margin-top:2px">Head of Sales, Marketing, Business Development & Liaison</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px">
+    <button class="btn" onclick="generatePDF()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l3 3v9H4V2z" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M9 2v4h3" stroke="#fff" stroke-width="1.3"/></svg>
+      Generate & Print PDF
+    </button>
+    <button class="btn-outline" onclick="saveQuote()">Save Quote</button>
+    <button class="btn-outline" onclick="clearForm()">Clear Form</button>
+  </div>
+</div>
+
+<!-- SAVED -->
+<div id="tab-saved" class="body" style="display:none">
+  <div class="card"><div class="sec-title">Saved Quotations</div><div id="saved-list"></div></div>
+</div>
+
+<!-- SETTINGS (PIN protected) -->
+<div id="tab-settings" class="body" style="display:none">
+  <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap" id="settings-tabs">
+    <button class="stab-btn active" onclick="showStab('staff')">Staff & Running No.</button>
+    <button class="stab-btn" onclick="showStab('mininv')">Min Invoice</button>
+    <button class="stab-btn" onclick="showStab('tc')">Terms & Conditions</button>
+    <button class="stab-btn" onclick="showStab('pin')">PIN & Security</button>
+  </div>
+
+  <!-- Staff -->
+  <div id="stab-staff">
+    <div class="card"><div class="sec-title">Staff Running Numbers</div><div id="staff-running-settings"></div></div>
+  </div>
+
+  <!-- Min Invoice -->
+  <div id="stab-mininv" style="display:none">
+    <div class="card">
+      <div class="sec-title">Minimum Invoice by Location</div>
+      <p style="font-size:12px;color:#888;margin-bottom:14px">Click amount to edit. Auto-applied in T&C.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr>
+          <th style="padding:9px 12px;background:#073d1e;color:#fff;text-align:left;border-radius:8px 0 0 0">Location</th>
+          <th style="padding:9px 12px;background:#073d1e;color:#fff;text-align:left">Transport Fee</th>
+          <th style="padding:9px 12px;background:#073d1e;color:#fff;text-align:left;border-radius:0 8px 0 0">Min Invoice (RM)</th>
+        </tr></thead>
+        <tbody id="min-inv-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- T&C Editor -->
+  <div id="stab-tc" style="display:none">
+    <div class="card">
+      <div class="sec-title">Edit Terms & Conditions</div>
+      <p style="font-size:12px;color:#888;margin-bottom:16px">Edit any T&C clause. Changes are saved automatically and applied to all new quotations.</p>
+      <div id="tc-editor"></div>
+      <button class="btn-outline" style="margin-top:12px" onclick="resetTC()">Reset to Default</button>
+    </div>
+  </div>
+
+  <!-- PIN Settings -->
+  <div id="stab-pin" style="display:none">
+    <div class="card">
+      <div class="sec-title">PIN & Security</div>
+      <div class="setting-row">
+        <div><div style="font-size:13px;font-weight:500">Current PIN</div><div style="font-size:11px;color:#888">4-digit PIN to access Settings</div></div>
+        <button class="btn-sm" onclick="showChangePin()">Change PIN</button>
+      </div>
+      <div id="change-pin-area" style="display:none;margin-top:14px">
+        <div class="grid3">
+          <div class="field"><label class="lbl">Current PIN</label><input type="password" id="old-pin" maxlength="4" placeholder="••••"></div>
+          <div class="field"><label class="lbl">New PIN</label><input type="password" id="new-pin" maxlength="4" placeholder="••••"></div>
+          <div class="field"><label class="lbl">Confirm PIN</label><input type="password" id="confirm-pin" maxlength="4" placeholder="••••"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn-sm" onclick="changePin()">Save PIN</button>
+          <button class="btn-outline" onclick="document.getElementById('change-pin-area').style.display='none'">Cancel</button>
+        </div>
+        <div id="pin-change-err" style="font-size:12px;color:#e74c3c;margin-top:8px"></div>
+      </div>
+      <div class="setting-row" style="margin-top:8px">
+        <div><div style="font-size:13px;font-weight:500">Fingerprint / Face ID</div><div style="font-size:11px;color:#888" id="bio-status">Checking availability...</div></div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="bio-toggle" onchange="toggleBio(this.checked)" style="width:auto;accent-color:#0a5c2e">
+          <span style="font-size:13px" id="bio-toggle-label">Enable</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SIG_URL="https://i.imgur.com/9DaSz3O.png";
+const COP_URL="https://i.imgur.com/cWMBOVb.png";
+
+const STAFF_LIST=[
+  {name:"Romy Eaduka",team:"M1"},{name:"Sajali Basro",team:"M2"},
+  {name:"Syahmee Shafiee",team:"M3"},{name:"Kamil Khalid",team:"M4"}
+];
+
+const TRANSPORT=[
+  ["Pasir Gudang",750],["Kota Tinggi",780],["Johor Bahru",900],["Senai",1130],
+  ["Gelang Patah",1130],["Pontian",1380],["Kluang",1530],["Batu Pahat",1780],
+  ["Segamat",2100],["Muar",2100],["Melaka",2100],["Negeri Sembilan",2350],
+  ["Pahang",2450],["Terengganu",2850],["Selangor, Klang",2894],
+  ["Selangor, Rawang",2935],["Perak, Tg.Malim",3170],["Perak, Taiping",4400],
+  ["Penang",4980],["Kedah, Kulim",5000],["Kedah, Alor Setar",5400],["Kelantan, KB",5450]
+];
+
+const DEFAULT_MIN_INVOICE={
+  "Pasir Gudang":2500,"Kota Tinggi":2500,"Johor Bahru":3000,"Senai":3000,
+  "Gelang Patah":3000,"Pontian":3200,"Kluang":3500,"Batu Pahat":3500,
+  "Segamat":3500,"Muar":3500,"Melaka":4000,"Negeri Sembilan":4000,
+  "Pahang":8000,"Terengganu":10000,"Selangor, Klang":8000,"Selangor, Rawang":8000,
+  "Perak, Tg.Malim":9000,"Perak, Taiping":9000,"Penang":8000,
+  "Kedah, Kulim":10000,"Kedah, Alor Setar":10000,"Kelantan, KB":10000
+};
+
+const WASTE_FORMS=["Liquid","Sludge","Solid","Semi-Solid","Gas","Mixed"];
+const TREATMENTS=["Pyrolysis","Solidification","Secured Landfill","Incineration","Recovery"];
+
+const SW_NAMES={
+  "SW101":"Waste Containing Arsenic","SW102":"Lead Acid Batteries Waste","SW103":"Batteries Waste (Cd/Ni/Hg/Li)",
+  "SW104":"Dust/Slag/Ash (Heavy Metals)","SW105":"Galvanic Sludge","SW106":"Acid Pickling Liquor Residues",
+  "SW107":"Copper Processing Slag","SW108":"Zinc Processing Residues","SW109":"Waste Containing Mercury",
+  "SW110":"E&E Assembly Waste (Hazardous)","SW201":"Waste Gypsum","SW202":"Spent Ceramic Ball / Zinc Oxide",
+  "SW203":"Spent Catalyst (Ni/V/Mo)","SW204":"Sludge Containing Metal","SW205":"Asbestos-Containing Waste",
+  "SW301":"Spent Mineral Oil","SW302":"Spent Engine Oil","SW303":"Spent Transformer Oil",
+  "SW304":"Spent Turbine Oil","SW305":"Spent Lubricating Oil","SW306":"Spent Hydraulic Oil",
+  "SW307":"Spent Heat Transfer Oil","SW308":"Spent Cutting Oil","SW309":"Spent Solvents",
+  "SW310":"Acidic Waste","SW311":"Alkaline Waste","SW312":"Waste Containing Phenols",
+  "SW313":"Waste Containing Formaldehyde","SW314":"Waste Containing Cyanide",
+  "SW315":"Waste (Organic Phosphorus)","SW316":"Waste (Halogenated Organics)",
+  "SW317":"Waste (Non-Halogenated Organics)","SW318":"Waste (Polycyclic Aromatic HC)",
+  "SW319":"Waste Containing PCBs","SW320":"Waste Containing Dioxins & Furans",
+  "SW401":"Tank Cleaning Waste","SW402":"Pipeline Cleaning Waste","SW403":"Reactor Cleaning Waste",
+  "SW404":"Heat Exchanger Cleaning Waste","SW405":"Boiler Cleaning Waste","SW406":"Vessel Cleaning Waste",
+  "SW407":"Drum Cleaning Waste","SW408":"Spent Catalyst","SW409":"Contaminated Containers",
+  "SW410":"Contaminated Materials (Rags/PPE)","SW411":"Filter Cleaning Waste",
+  "SW412":"Pump Cleaning Waste","SW413":"Valve Cleaning Waste","SW414":"Compressor Cleaning Waste",
+  "SW415":"Turbine Cleaning Waste","SW416":"Engine Cleaning Waste","SW417":"Waste Paint",
+  "SW418":"Waste Ink","SW419":"Waste Adhesive","SW420":"Waste Resin",
+  "SW421":"Waste Plastic (Hazardous)","SW422":"Waste Rubber (Hazardous)","SW423":"Waste Glass (Hazardous)",
+  "SW424":"Waste Paper (Hazardous)","SW425":"Waste Wood (Hazardous)","SW426":"Waste Textile (Hazardous)",
+  "SW427":"Waste Leather (Hazardous)","SW428":"Waste Metal (Hazardous)",
+  "SW429":"Expired Chemicals","SW430":"Laboratory Waste","SW501":"Scheduled Waste (Hazardous)"
+};
+
+const DEFAULT_TC_TEXTS={
+  0:"Payment terms: {paymentDays} days.",
+  1:"Validity: {validityDays} days after quotation submission",
+  2:"Collection: Five (5) days before the prior collection date",
+  3:"The transportation fee is subject to SST @ 6%",
+  4:"Any incurred customs and forwarding charges will be billed (if applicable).",
+  5:"A transportation fee of RM{transportFee} will be charged for any cancellation made on the collection day.",
+  6:"The above-quoted price is solely an estimate derived from the customer's waste description and/or analysis.",
+  7:"We have the right to revise the treatment fee based on the corresponding treatment cost of the waste received, if the waste analysis following lab tests results in a varying waste composition as per the Client's waste card or as described in point 7 above.",
+  8:"ER2E reserves the right to return non-conforming waste to the Client in the event the Client is unwilling to pay for the different treatment fee, or the waste is non-compliant, with all associated costs borne by the customer.",
+  9:"All charges quoted are subject to the actual quantity per collection. ER2E shall invoice with a minimum collection of RM{minInvoice} (Including Transportation Charges) for each collection through the weighbridge ticket, subject to whichever is highest.",
+  10:"The weight at the ER2E weighbridge is considered final and will be used as the final weight for billing.",
+  11:"Any packaging materials required by Waste Generator/Clients should be clarified 3 working days before collection (If any) and shall be at the cost of the client.",
+  12:"Any additional procedure will be charged back to the CLIENT (e.g., lab test).",
+  13:"Waste Generators are responsible for getting confirmation of the SW code from DOE, as well as the opening of an eSWIS account with DOE.",
+  14:"Upon receiving waste in prescribed premises, ER2E reserves the right to bill the CLIENT"
+};
+
+// Editable vars within T&C: {paymentDays}, {validityDays}, {transportFee}, {minInvoice}
+// These are auto-replaced at render time
+
+// STATE
+let minInvoice=JSON.parse(localStorage.getItem("er2e_q_min")||"null")||{...DEFAULT_MIN_INVOICE};
+let staffCounters=JSON.parse(localStorage.getItem("er2e_q_counters")||"{}");
+let savedQuotes=JSON.parse(localStorage.getItem("er2e_q_saved")||"[]");
+let tcValues=JSON.parse(localStorage.getItem("er2e_q_tc")||"null")||{paymentDays:"30",validityDays:"30"};
+let tcTexts=JSON.parse(localStorage.getItem("er2e_q_tc_texts")||"null")||{...DEFAULT_TC_TEXTS};
+let selectedStaffIdx=-1;
+let items=[];
+let settingsUnlocked=false;
+const DEFAULT_PIN="1234";
+
+// ── PIN ───────────────────────────────────────────────────────────────────
+let pinBuffer="";
+let pinMode="verify"; // "verify" | "setup"
+let bioEnabled=JSON.parse(localStorage.getItem("er2e_bio")||"false");
+
+function getStoredPin(){ return localStorage.getItem("er2e_pin")||DEFAULT_PIN; }
+
+function requestSettings(){
+  if(settingsUnlocked){ openSettings(); return; }
+  pinMode="verify"; pinBuffer="";
+  document.getElementById("pin-title").textContent="Settings";
+  document.getElementById("pin-sub").textContent="Enter your 4-digit PIN";
+  clearDots();
+  document.getElementById("pin-err").textContent="";
+  document.getElementById("pin-overlay").classList.add("open");
+  // Show biometric button if enabled
+  document.getElementById("bio-btn").style.display=bioEnabled?"flex":"none";
+  if(bioEnabled) setTimeout(tryBiometric,400);
+}
+
+function closePinOverlay(){ document.getElementById("pin-overlay").classList.remove("open"); pinBuffer=""; clearDots(); }
+
+function pinKey(d){
+  if(pinBuffer.length>=4) return;
+  pinBuffer+=d;
+  updateDots();
+  if(pinBuffer.length===4) setTimeout(submitPin,200);
+}
+
+function pinDel(){ if(pinBuffer.length>0){ pinBuffer=pinBuffer.slice(0,-1); updateDots(); } }
+
+function updateDots(){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById("pd"+i);
+    dot.classList.toggle("filled",i<pinBuffer.length);
+    dot.classList.remove("error","success");
+  }
+}
+
+function clearDots(){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById("pd"+i);
+    dot.classList.remove("filled","error","success");
+  }
+}
+
+function flashDots(type){
+  for(let i=0;i<4;i++) document.getElementById("pd"+i).classList.add(type);
+  setTimeout(()=>{ clearDots(); pinBuffer=""; updateDots(); },600);
+}
+
+function submitPin(){
+  if(pinMode==="verify"){
+    if(pinBuffer===getStoredPin()){
+      flashDots("success");
+      setTimeout(()=>{ closePinOverlay(); settingsUnlocked=true; openSettings(); },400);
+    } else {
+      flashDots("error");
+      document.getElementById("pin-err").textContent="Incorrect PIN. Try again.";
+    }
+  }
+}
+
+// Biometric (WebAuthn / platform authenticator)
+async function tryBiometric(){
+  if(!window.PublicKeyCredential){ showBioStatus("Not supported on this device"); return; }
+  try {
+    const available=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if(!available){ showBioStatus("Biometric not available"); return; }
+    // Use a simple credential get with user verification
+    const challenge=new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    await navigator.credentials.get({
+      publicKey:{
+        challenge,
+        timeout:30000,
+        userVerification:"required",
+        rpId:window.location.hostname||"localhost"
+      }
+    });
+    // Success
+    flashDots("success");
+    setTimeout(()=>{ closePinOverlay(); settingsUnlocked=true; openSettings(); },400);
+  } catch(e){
+    if(e.name!=="NotAllowedError") document.getElementById("pin-err").textContent="Biometric failed. Use PIN.";
+  }
+}
+
+function openSettings(){
+  switchTab('settings');
+  renderStaffRunningSettings();
+  renderMinInvSettings();
+  renderTCEditor();
+  checkBioAvailability();
+}
+
+function showBioStatus(msg){ document.getElementById("bio-status").textContent=msg; }
+
+async function checkBioAvailability(){
+  const toggle=document.getElementById("bio-toggle");
+  const label=document.getElementById("bio-toggle-label");
+  if(!window.PublicKeyCredential){
+    showBioStatus("Not supported on this browser/device");
+    toggle.disabled=true; return;
+  }
+  const available=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  if(available){
+    showBioStatus("Fingerprint / Face ID available on this device");
+    toggle.checked=bioEnabled;
+    label.textContent=bioEnabled?"Enabled":"Enable";
+  } else {
+    showBioStatus("Biometric not available on this device");
+    toggle.disabled=true;
+  }
+}
+
+function toggleBio(enabled){
+  bioEnabled=enabled;
+  localStorage.setItem("er2e_bio",JSON.stringify(enabled));
+  document.getElementById("bio-toggle-label").textContent=enabled?"Enabled":"Enable";
+  toast(enabled?"Biometric enabled":"Biometric disabled");
+}
+
+function showChangePin(){ document.getElementById("change-pin-area").style.display=""; }
+
+function changePin(){
+  const old=document.getElementById("old-pin").value;
+  const nw=document.getElementById("new-pin").value;
+  const cf=document.getElementById("confirm-pin").value;
+  const errEl=document.getElementById("pin-change-err");
+  if(old!==getStoredPin()){errEl.textContent="Current PIN incorrect.";return;}
+  if(!/^\d{4}$/.test(nw)){errEl.textContent="PIN must be exactly 4 digits.";return;}
+  if(nw!==cf){errEl.textContent="New PINs don't match.";return;}
+  localStorage.setItem("er2e_pin",nw);
+  errEl.textContent="";
+  document.getElementById("change-pin-area").style.display="none";
+  ["old-pin","new-pin","confirm-pin"].forEach(id=>document.getElementById(id).value="");
+  toast("PIN changed successfully ✓");
+}
+
+// SETTINGS TABS
+function showStab(tab){
+  ["staff","mininv","tc","pin"].forEach(t=>{
+    document.getElementById("stab-"+t).style.display=t===tab?"":"none";
+  });
+  document.querySelectorAll(".stab-btn").forEach((b,i)=>{
+    b.classList.toggle("active",["staff","mininv","tc","pin"][i]===tab);
+  });
+  if(tab==="tc") renderTCEditor();
+  if(tab==="pin") checkBioAvailability();
+}
+
+// T&C EDITOR
+function renderTCEditor(){
+  const el=document.getElementById("tc-editor");
+  el.innerHTML=Object.entries(tcTexts).map(([idx,text])=>`
+    <div style="margin-bottom:12px">
+      <label class="lbl" style="margin-bottom:5px">Clause ${parseInt(idx)+1}</label>
+      <textarea id="tce-${idx}" rows="2" style="font-size:13px">${text}</textarea>
+      <div style="font-size:11px;color:#aaa;margin-top:3px">Variables: {paymentDays} {validityDays} {transportFee} {minInvoice}</div>
+    </div>`).join("")+
+    `<button class="btn-sm" onclick="saveTCEdits()">Save All Changes</button>`;
+}
+
+function saveTCEdits(){
+  Object.keys(tcTexts).forEach(idx=>{
+    const el=document.getElementById("tce-"+idx);
+    if(el) tcTexts[idx]=el.value;
+  });
+  localStorage.setItem("er2e_q_tc_texts",JSON.stringify(tcTexts));
+  renderTC();
+  toast("T&C saved ✓");
+}
+
+function resetTC(){
+  if(!confirm("Reset all T&C to default?")) return;
+  tcTexts={...DEFAULT_TC_TEXTS};
+  localStorage.removeItem("er2e_q_tc_texts");
+  renderTCEditor();
+  renderTC();
+  toast("T&C reset to default");
+}
+
+// INIT
+function init(){
+  document.getElementById("q-month").value=new Date().toISOString().slice(0,7);
+  const sel=document.getElementById("c-location");
+  TRANSPORT.forEach(([loc])=>{ const o=document.createElement("option"); o.value=loc; o.textContent=loc; sel.appendChild(o); });
+  renderStaffCards(); addItem(); renderTC();
+}
+
+function toast(msg,type="success"){
+  const el=document.getElementById("toast");
+  el.style.background=type==="info"?"#1a3a6b":"#0a5c2e";
+  el.textContent=msg; el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),2400);
+}
+
+function switchTab(t){
+  ["form","saved","settings"].forEach(tab=>document.getElementById("tab-"+tab).style.display=t===tab?"block":"none");
+  document.querySelectorAll(".nav-btn").forEach((b,i)=>b.classList.toggle("active",["form","saved","settings"][i]===t));
+  if(t==="saved") renderSaved();
+}
+
+// STAFF
+function renderStaffCards(){
+  document.getElementById("staff-cards").innerHTML=STAFF_LIST.map((s,i)=>`
+    <div class="staff-card ${selectedStaffIdx===i?"selected":""}" onclick="selectStaff(${i})">
+      <div class="s-name">${s.name}</div><div class="s-team">${s.team}</div>
+      <div class="s-running">${getNextRunning(i)}</div>
+    </div>`).join("");
+}
+function getNextRunning(i){ return "W"+String((staffCounters["staff_"+i]||0)+1).padStart(3,"0"); }
+function selectStaff(i){ selectedStaffIdx=i; renderStaffCards(); updateQuotNo(); renderTC(); }
+
+// QUOT NO
+function updateQuotNo(){
+  const acr=(document.getElementById("q-acronym").value||"???").toUpperCase().trim();
+  const mr=document.getElementById("q-month").value;
+  const rev=document.getElementById("q-revision").value;
+  let mmyy="0000"; if(mr){const [y,m]=mr.split("-");mmyy=m+y.slice(2);}
+  const team=selectedStaffIdx>=0?STAFF_LIST[selectedStaffIdx].team:"M?";
+  const run=selectedStaffIdx>=0?getNextRunning(selectedStaffIdx):"W000";
+  document.getElementById("quot-preview").textContent=`${acr}|ER2E|${team}|${mmyy}|${run}|${rev}`;
+}
+function getQuotNo(){
+  const acr=(document.getElementById("q-acronym").value||"???").toUpperCase().trim();
+  const mr=document.getElementById("q-month").value;
+  const rev=document.getElementById("q-revision").value;
+  let mmyy="0000"; if(mr){const [y,m]=mr.split("-");mmyy=m+y.slice(2);}
+  const team=selectedStaffIdx>=0?STAFF_LIST[selectedStaffIdx].team:"M?";
+  const run=selectedStaffIdx>=0?getNextRunning(selectedStaffIdx):"W000";
+  return `${acr}|ER2E|${team}|${mmyy}|${run}|${rev}`;
+}
+function finalizeRunning(){
+  if(selectedStaffIdx<0) return;
+  const key="staff_"+selectedStaffIdx;
+  staffCounters[key]=(staffCounters[key]||0)+1;
+  localStorage.setItem("er2e_q_counters",JSON.stringify(staffCounters));
+  renderStaffCards(); updateQuotNo();
+}
+
+// LOCATION
+function onLocationChange(){
+  const loc=document.getElementById("c-location").value;
+  const disp=document.getElementById("min-inv-display");
+  if(loc){
+    document.getElementById("min-inv-val").textContent="RM "+fmtRM(minInvoice[loc]||0);
+    const tr=TRANSPORT.find(([l])=>l===loc);
+    document.getElementById("transport-fee-val").textContent="RM "+fmtRM(tr?tr[1]:0);
+    disp.style.display="";
+  } else disp.style.display="none";
+  renderTC();
+}
+function getTransportFee(){ const loc=document.getElementById("c-location")?.value; if(!loc) return "—"; const tr=TRANSPORT.find(([l])=>l===loc); return tr?fmtRM(tr[1]):"—"; }
+function getMinInvStr(){ const loc=document.getElementById("c-location")?.value; if(loc&&minInvoice[loc]!==undefined) return fmtRM(minInvoice[loc]); return "7,500.00"; }
+
+// ITEMS
+function addItem(){ items.push({id:Date.now().toString()+Math.random().toString(36).slice(2),swCode:"",wasteName:"",treatment:"",wasteForm:"",charge:""}); renderItems(); }
+function removeItem(id){ items=items.filter(i=>i.id!==id); renderItems(); }
+function onSwCodeInput(id,val){
+  const it=items.find(i=>i.id===id); if(!it) return; it.swCode=val;
+  const auto=SW_NAMES[val.toUpperCase().trim()];
+  if(auto){ it.wasteName=auto; const el=document.getElementById("wn-"+id); if(el) el.value=auto; }
+}
+function onWasteNameInput(id,val){ const it=items.find(i=>i.id===id); if(it) it.wasteName=val; }
+function onTreatmentChange(id,val){ const it=items.find(i=>i.id===id); if(it) it.treatment=val; }
+function onWasteFormChange(id,val){ const it=items.find(i=>i.id===id); if(it) it.wasteForm=val; }
+function onChargeInput(id,val){ const it=items.find(i=>i.id===id); if(it) it.charge=val; }
+
+function renderItems(){
+  const c=document.getElementById("items-container");
+  if(!items.length){ c.innerHTML=`<div style="text-align:center;padding:20px;color:#888;font-size:13px">No items. Click "+ Add Item"</div>`; return; }
+  c.innerHTML=items.map((item,idx)=>`
+    <div class="item-row">
+      <div class="item-num">${idx+1}</div>
+      <button class="remove-btn" onclick="removeItem('${item.id}')">×</button>
+      <div class="grid4" style="margin-bottom:10px">
+        <div><label class="lbl">SW Code</label>
+          <input type="text" id="sc-${item.id}" value="${item.swCode}" placeholder="SW418" oninput="onSwCodeInput('${item.id}',this.value)" style="text-transform:uppercase">
+        </div>
+        <div><label class="lbl">Waste Name <span style="color:#2d9e5f;font-size:9px;font-weight:700">AUTO</span></label>
+          <input type="text" id="wn-${item.id}" value="${item.wasteName}" placeholder="Auto from SW code" oninput="onWasteNameInput('${item.id}',this.value)">
+        </div>
+        <div><label class="lbl">Treatment</label>
+          <select onchange="onTreatmentChange('${item.id}',this.value)">
+            <option value="">-- Select --</option>
+            ${TREATMENTS.map(t=>`<option value="${t}" ${item.treatment===t?"selected":""}>${t}</option>`).join("")}
+          </select>
+        </div>
+        <div><label class="lbl">Waste Form</label>
+          <select onchange="onWasteFormChange('${item.id}',this.value)">
+            <option value="">-- Select --</option>
+            ${WASTE_FORMS.map(f=>`<option value="${f}" ${item.wasteForm===f?"selected":""}>${f}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div style="max-width:200px"><label class="lbl">Charge per MT (RM)</label>
+        <input type="number" value="${item.charge}" placeholder="0.00" oninput="onChargeInput('${item.id}',this.value)">
+      </div>
+    </div>`).join("");
+}
+
+// T&C RENDER — uses tcTexts with variable substitution
+function renderTC(){
+  const trFee=getTransportFee();
+  const minInv=getMinInvStr();
+  const loc=document.getElementById("c-location")?.value||"";
+  const pd=tcValues.paymentDays||"30";
+  const vd=tcValues.validityDays||"30";
+
+  function substitute(text){
+    return text
+      .replace("{paymentDays}",`<input type="text" value="${pd}" style="width:55px;padding:3px 7px;font-size:13px;border:1px solid #cce0d4;border-radius:6px;display:inline-block" oninput="updateTC('paymentDays',this.value)">`)
+      .replace("{validityDays}",`<input type="text" value="${vd}" style="width:55px;padding:3px 7px;font-size:13px;border:1px solid #cce0d4;border-radius:6px;display:inline-block" oninput="updateTC('validityDays',this.value)">`)
+      .replace("{transportFee}",`<span class="transport-badge">RM ${trFee}</span>${loc?`<span class="min-inv-badge">${loc}</span>`:""}`)
+      .replace("{minInvoice}",`<strong>RM${minInv}</strong>${loc?` <span class="min-inv-badge">${loc}</span>`:""}`);
+  }
+
+  document.getElementById("tc-container").innerHTML=Object.entries(tcTexts).map(([idx,text])=>`
+    <div class="tc-item">
+      <div class="tc-num">${parseInt(idx)+1}.</div>
+      <div style="flex:1;font-size:13px;color:#444;line-height:1.6">${substitute(text)}</div>
+    </div>`).join("");
+}
+
+function updateTC(key,val){ tcValues[key]=val; localStorage.setItem("er2e_q_tc",JSON.stringify(tcValues)); }
+function fmtRM(n){ return Number(n).toLocaleString("en-MY",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtCharge(n){ if(!n||isNaN(n)) return "—"; return Number(n).toLocaleString("en-MY",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+// PDF
+function generatePDF(){
+  if(selectedStaffIdx<0){toast("Please select a staff","info");return;}
+  const cName=document.getElementById("c-name").value;
+  if(!cName){toast("Please enter client name","info");return;}
+  if(!items.length){toast("Please add at least one item","info");return;}
+
+  const quotNo=getQuotNo();
+  const today=new Date();
+  const dateStr=`${String(today.getDate()).padStart(2,"0")}.${String(today.getMonth()+1).padStart(2,"0")}.${today.getFullYear()}`;
+  const cAttn=document.getElementById("c-attn").value;
+  const cAddr=document.getElementById("c-addr").value;
+  const cTel=document.getElementById("c-tel").value;
+  const cEmail=document.getElementById("c-email").value;
+  const cLoc=document.getElementById("c-location").value;
+  const addrLines=cAddr.split("\n").filter(Boolean);
+  const minInvStr=cLoc&&minInvoice[cLoc]!==undefined?fmtRM(minInvoice[cLoc]):"7,500.00";
+  const trFeeVal=cLoc?(TRANSPORT.find(([l])=>l===cLoc)?.[1]||0):0;
+  const trFeeStr=fmtRM(trFeeVal);
+
+  // Build final TC list for PDF (plain text, no HTML inputs)
+  const tcFinal=Object.values(tcTexts).map(text=>
+    text.replace("{paymentDays}",tcValues.paymentDays||"30")
+        .replace("{validityDays}",tcValues.validityDays||"30")
+        .replace("{transportFee}",`<strong>RM${trFeeStr}</strong>`)
+        .replace("{minInvoice}",`<strong>RM${minInvStr}</strong>`)
+  );
+
+  const hdr=`<div style="padding:14px 18mm 10px;border-bottom:2.5px solid #0a5c2e;display:flex;justify-content:space-between;align-items:flex-start">
+    <div><div class="co-name">ECONAS RESOURCE TO ENERGY SDN. BHD.</div>
+    <div class="co-sub">(COMPANY NO: 201901020492/1329821-V)<br>Unit 18-03, Level 18, Menara Zurich, No.15, Jalan Dato' Abdullah Tahir,<br>80300 Johor Bahru, Johor.<br><strong>Tel:</strong> +607-338 2004 &nbsp; <strong>Fax:</strong> +607-335 8004</div></div>
+    <img src="https://i.imgur.com/m64szz8.png" style="height:44px;object-fit:contain" onerror="this.style.display='none'">
+  </div>`;
+
+  const meta=(page)=>`<div class="meta-block">
+    <div><strong>QUOT.NO:</strong><span class="qno">${quotNo}</span></div>
+    <div><strong>Page No</strong><br>${page}</div>
+    <div><strong>Dept</strong><br>Marketing</div>
+    <div><strong>Currency</strong><br>MYR</div>
+    <div><strong>Date</strong><br>${dateStr}</div>
+  </div>`;
+
+  const tableRows=items.map((it,i)=>`<tr><td>${i+1}</td><td style="font-weight:600">${it.swCode||"—"}</td><td>${it.wasteName||"—"}</td><td>${it.treatment||"—"}</td><td>${it.wasteForm||"—"}</td><td>MT</td><td style="text-align:right;font-weight:600">${fmtCharge(it.charge)}</td></tr>`).join("")+
+    `<tr><td>${items.length+1}</td><td style="font-weight:600">Transport Fee</td><td colspan="5">From <strong>${cLoc||"[Location]"}</strong> to the prescribed premises. Transport fee is included.</td></tr>`;
+
+  const css=`*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#fff}@page{margin:0;size:A4}
+  .pg{width:210mm;min-height:297mm;padding:0;background:#fff;position:relative;page-break-after:always;overflow:hidden;font-size:11pt;color:#111}
+  .pg:last-child{page-break-after:auto}
+  .bd{padding:8px 29px 8px 29px}
+  .hdr{padding:14px 29px 10px 29px;border-bottom:2.5px solid #0a5c2e;display:flex;justify-content:space-between;align-items:flex-start}
+  table{width:100%;border-collapse:collapse;font-size:11pt;margin-bottom:12px}
+  th{background:#073d1e;color:#fff;padding:6px 8px;text-align:left;font-weight:600;font-size:11pt}
+  td{padding:5px 8px;border:1px solid #ccc;vertical-align:middle;font-size:11pt}
+  tr:nth-child(even) td{background:#f8f8f8}
+  ol{padding-left:16px;font-size:11pt;line-height:1.75}
+  li{margin-bottom:2px}
+  .fbar{position:absolute;bottom:0;left:0;right:0;height:10px;background:linear-gradient(90deg,#0a5c2e 60%,#7ccc9e 100%)}
+  .ft{position:absolute;bottom:14px;left:29px;right:29px;font-size:7pt;color:#666;display:flex;justify-content:space-between}
+  .meta-block{text-align:right;font-size:8pt;line-height:1.8;flex-shrink:0;margin-left:16px}
+  .meta-block .qno{font-size:11pt;font-weight:700}
+  .co-name{font-size:10.5pt;font-weight:700}
+  .co-sub{font-size:7.5pt;color:#333;margin-top:3px;line-height:1.6}
+  .cli-name{font-size:12pt;font-weight:700}
+  .cli-addr{font-size:12pt;color:#111;line-height:1.65;margin-top:2px}
+  .cli-contact{font-size:10pt;color:#333;margin-top:3px;line-height:1.6}
+  .intro{font-size:11pt;line-height:1.65;margin-bottom:10px}
+  .tc-title{font-size:11pt;font-weight:700;margin-bottom:6px}
+  `;
+
+  const page1=`<div>${hdr}
+  <div class="content">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:12px 0">
+      <div style="flex:1;max-width:58%">
+        <div class="cli-name">${cName}</div>
+        <div class="cli-addr">${addrLines.join("<br>")}</div>
+        <div class="cli-contact">${cTel?`Tel: ${cTel}<br>`:""}${cEmail?`Email: ${cEmail}`:""}</div>
+      </div>${meta("1 of 2")}
+    </div>
+    <div style="font-size:11pt;margin-bottom:10px">Dear <strong>${cAttn||"Sir/Madam"},</strong></div>
+    <div style="font-size:11pt;font-weight:700;margin:8px 0;text-align:left"><strong>QUOTATION FOR SCHEDULED WASTE TRANSPORTATION AND TREATMENT WITH ER2E</strong></div>
+    <div class="intro">We would like to take this opportunity to express our gratitude for your support and trust in <strong>Econas Resource to Energy Sdn. Bhd. [ER2E]</strong>. We are pleased to offer our competitive rates for Scheduled Waste management services.</div>
+    <table><thead><tr>
+      <th style="width:5%">No</th><th style="width:11%">Item Code</th><th style="width:24%">Waste Name</th>
+      <th style="width:15%">Treatment Type</th><th style="width:12%">Waste Form</th>
+      <th style="width:7%">OUM</th><th style="width:26%;text-align:right">Charge (RM)</th>
+    </tr></thead><tbody>${tableRows}</tbody></table>
+    <div class="tc-title">Terms and Conditions:</div>
+    <ol>${tcFinal.map(t=>`<li style="margin-bottom:4px">${t}</li>`).join("")}</ol>
+
+    <!-- Closing paragraph — flows naturally after T&C -->
+    <div style="font-size:11pt;line-height:1.7;margin-top:16px">
+      We hope that our quotation is favourable to you, and we are looking forward to receiving your valued orders.
+      Should you require further clarification, please do not hesitate to contact us.
+    </div>
+    <div style="font-size:11pt;margin-top:10px">Thank you</div>
+
+    <!-- Signature block — flows below closing, page break avoided inside -->
+    <div class="sig-grid" style="page-break-inside:avoid;margin-top:16px">
+      <div>
+        <div style="font-size:10pt;margin-bottom:2px">Yours sincerely,</div>
+        <div style="font-size:10pt;margin-bottom:2px">For and on behalf of,</div>
+        <div style="font-weight:700;font-size:11pt;margin-bottom:6px">Econas Resource To Energy Sdn. Bhd</div>
+        <div style="position:relative;height:80px">
+          <img src="${SIG_URL}" style="position:absolute;bottom:0;left:0;height:70px;mix-blend-mode:multiply;opacity:0.85" onerror="this.style.display='none'">
+          <img src="${COP_URL}" style="position:absolute;bottom:-6px;left:50px;height:80px;mix-blend-mode:multiply;opacity:0.75" onerror="this.style.display='none'">
+        </div>
+        <div style="border-top:1px solid #111;width:240px;margin:2px 0 4px"></div>
+        <div style="font-weight:700;font-size:10pt">ROMY EADUKA BIN SHAHRUDDIN</div>
+        <div style="font-size:9pt;color:#444;margin-top:2px">Head of Sales, Marketing, Business Development &amp; Liaison</div>
+      </div>
+      <div>
+        <div style="font-size:10pt;margin-bottom:2px">Accepted and agreed by,</div>
+        <div style="font-weight:700;font-size:11pt;margin-bottom:6px">${cName}</div>
+        <div style="height:80px"></div>
+        <div style="border-top:1px solid #111;width:100%;margin:2px 0 12px"></div>
+        <div style="font-size:11pt;font-weight:500;margin-bottom:22px">Name:&nbsp; _________________________</div>
+        <div style="font-size:11pt;font-weight:500">Date: &nbsp;&nbsp; _________________________</div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- Fixed footer bar + footer text on every page -->
+  <div class="footer-line">
+    <span>QUOT.NO: ${quotNo}</span>
+    <span>Dept: Marketing &nbsp;|&nbsp; Currency: MYR &nbsp;|&nbsp; Date: ${dateStr}</span>
+  </div>
+  <div class="fbar-wrap"><div class="fbar"></div></div>
+  </div>`;
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${css}</style></head><body>${page1}</body></html>`;
+  // Use Blob URL — works in Chrome iframe environments
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  finalizeRunning();
+  toast("PDF opened in new tab — use Ctrl+P or ⌘P to print/save");
+}
+
+// SAVE / LOAD
+function saveQuote(){
+  const cName=document.getElementById("c-name").value;
+  if(!cName){toast("Please enter client name","info");return;}
+  const entry={quotNo:getQuotNo(),savedAt:new Date().toLocaleString("en-MY"),staffIdx:selectedStaffIdx,acronym:document.getElementById("q-acronym").value,month:document.getElementById("q-month").value,revision:document.getElementById("q-revision").value,client:{name:cName,attn:document.getElementById("c-attn").value,addr:document.getElementById("c-addr").value,tel:document.getElementById("c-tel").value,email:document.getElementById("c-email").value,location:document.getElementById("c-location").value},items:items.map(i=>({...i})),tcValues:{...tcValues}};
+  savedQuotes=[entry,...savedQuotes].slice(0,50);
+  localStorage.setItem("er2e_q_saved",JSON.stringify(savedQuotes));
+  toast("Quote saved!");
+}
+
+function renderSaved(){
+  const el=document.getElementById("saved-list");
+  if(!savedQuotes.length){el.innerHTML=`<div style="text-align:center;padding:40px;color:#888;font-size:14px">No saved quotations yet.</div>`;return;}
+  el.innerHTML=savedQuotes.map((q,i)=>`
+    <div style="background:#f8faf8;border:1px solid #d4e8da;border-radius:10px;padding:13px 15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div><div style="font-weight:600;font-size:14px;font-family:monospace;margin-bottom:3px">${q.quotNo}</div><div style="font-size:13px;color:#333">${q.client?.name||"—"}</div><div style="font-size:11px;color:#888;margin-top:2px">${q.savedAt} · ${q.items?.length||0} item(s)</div></div>
+      <div style="display:flex;gap:8px"><button class="btn-sm" onclick="loadQuote(${i})">Load</button><button class="btn-danger" onclick="deleteQuote(${i})">Delete</button></div>
+    </div>`).join("");
+}
+
+function loadQuote(i){
+  const q=savedQuotes[i]; selectedStaffIdx=q.staffIdx??-1;
+  document.getElementById("q-acronym").value=q.acronym||"";
+  document.getElementById("q-month").value=q.month||"";
+  document.getElementById("q-revision").value=q.revision||"00";
+  document.getElementById("c-name").value=q.client?.name||"";
+  document.getElementById("c-attn").value=q.client?.attn||"";
+  document.getElementById("c-addr").value=q.client?.addr||"";
+  document.getElementById("c-tel").value=q.client?.tel||"";
+  document.getElementById("c-email").value=q.client?.email||"";
+  document.getElementById("c-location").value=q.client?.location||"";
+  if(q.tcValues){tcValues={...q.tcValues};localStorage.setItem("er2e_q_tc",JSON.stringify(tcValues));}
+  items=(q.items||[]).map(it=>({...it,id:Date.now().toString()+Math.random().toString(36).slice(2)}));
+  renderStaffCards(); renderItems(); renderTC(); onLocationChange(); updateQuotNo();
+  switchTab("form"); toast("Quote loaded!");
+}
+
+function deleteQuote(i){if(!confirm("Delete?"))return;savedQuotes.splice(i,1);localStorage.setItem("er2e_q_saved",JSON.stringify(savedQuotes));renderSaved();}
+
+function clearForm(){
+  selectedStaffIdx=-1;
+  ["q-acronym","c-name","c-attn","c-addr","c-tel","c-email"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("c-location").value="";
+  document.getElementById("q-revision").value="00";
+  document.getElementById("min-inv-display").style.display="none";
+  items=[]; addItem(); renderStaffCards(); renderTC(); updateQuotNo(); toast("Form cleared.");
+}
+
+// SETTINGS RENDERS
+function renderStaffRunningSettings(){
+  document.getElementById("staff-running-settings").innerHTML=STAFF_LIST.map((s,i)=>`
+    <div class="setting-row">
+      <div><div style="font-size:13px;font-weight:500">${s.name} (${s.team})</div><div style="font-size:11px;color:#888">Next: ${getNextRunning(i)}</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="number" value="${staffCounters["staff_"+i]||0}" min="0" style="width:80px;padding:6px 10px;font-size:13px" onchange="setStaffCounter(${i},this.value)">
+        <span style="font-size:12px;color:#888">current</span>
+      </div>
+    </div>`).join("");
+}
+
+function setStaffCounter(i,val){
+  staffCounters["staff_"+i]=parseInt(val)||0;
+  localStorage.setItem("er2e_q_counters",JSON.stringify(staffCounters));
+  renderStaffCards(); updateQuotNo(); renderStaffRunningSettings(); toast("Updated");
+}
+
+function renderMinInvSettings(){
+  document.getElementById("min-inv-tbody").innerHTML=TRANSPORT.map(([loc,fee],i)=>{
+    const key=loc.replace(/[^a-z0-9]/gi,"_");
+    return `<tr style="background:${i%2===0?"#fff":"#fafcfa"}">
+      <td style="padding:8px 12px;font-size:13px">${loc}</td>
+      <td style="padding:8px 12px;font-size:13px;color:#555">RM ${fmtRM(fee)}</td>
+      <td style="padding:8px 12px" id="mincell-${key}">
+        <span onclick="editMinInv('${loc}')" style="cursor:pointer;padding:4px 8px;background:#f4f4f4;border-radius:5px;font-size:13px;font-family:monospace">RM ${fmtRM(minInvoice[loc]||0)}</span>
+      </td></tr>`;
+  }).join("");
+}
+
+function editMinInv(loc){
+  const key=loc.replace(/[^a-z0-9]/gi,"_");
+  document.getElementById("mincell-"+key).innerHTML=`<div style="display:flex;gap:8px;align-items:center">
+    <input type="number" id="miedit-${key}" value="${minInvoice[loc]||0}" style="width:110px;padding:6px 10px;font-size:13px">
+    <button class="btn-sm" onclick="saveMinInv('${loc}','${key}')">Save</button>
+    <button class="btn-outline" style="font-size:11px;padding:5px 10px" onclick="renderMinInvSettings()">Cancel</button>
+  </div>`;
+  document.getElementById("miedit-"+key).focus();
+}
+
+function saveMinInv(loc,key){
+  const val=parseFloat(document.getElementById("miedit-"+key).value);
+  if(!isNaN(val)&&val>=0){minInvoice[loc]=val;localStorage.setItem("er2e_q_min",JSON.stringify(minInvoice));}
+  renderMinInvSettings(); onLocationChange(); toast("Saved: "+loc);
+}
+
+init();
+</script>
+</body>
+</html>
