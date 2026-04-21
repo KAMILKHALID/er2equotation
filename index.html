@@ -709,15 +709,15 @@ function generatePDF(){
         .replace("{minInvoice}",`<strong>RM${minInvStr}</strong>`)
   );
 
-  const hdr=`<div class="hdr">
+  const hdr=`<div style="padding:14px 18mm 10px;border-bottom:2.5px solid #0a5c2e;display:flex;justify-content:space-between;align-items:flex-start">
     <div><div class="co-name">ECONAS RESOURCE TO ENERGY SDN. BHD.</div>
     <div class="co-sub">(COMPANY NO: 201901020492/1329821-V)<br>Unit 18-03, Level 18, Menara Zurich, No.15, Jalan Dato' Abdullah Tahir,<br>80300 Johor Bahru, Johor.<br><strong>Tel:</strong> +607-338 2004 &nbsp; <strong>Fax:</strong> +607-335 8004</div></div>
-    <img src="https://i.imgur.com/m64szz8.png" style="height:46px;object-fit:contain" onerror="this.style.display='none'">
+    <img src="https://i.imgur.com/m64szz8.png" style="height:44px;object-fit:contain" onerror="this.style.display='none'">
   </div>`;
 
   const meta=(page)=>`<div class="meta-block">
-    <div><strong>QUOT.NO:</strong><br><span class="qno">${quotNo}</span></div>
-    <div><strong>Page No</strong><br>${page} of 2</div>
+    <div><strong>QUOT.NO:</strong><span class="qno">${quotNo}</span></div>
+    <div><strong>Page No</strong><br>${page}</div>
     <div><strong>Dept</strong><br>Marketing</div>
     <div><strong>Currency</strong><br>MYR</div>
     <div><strong>Date</strong><br>${dateStr}</div>
@@ -750,54 +750,66 @@ function generatePDF(){
   .tc-title{font-size:11pt;font-weight:700;margin-bottom:6px}
   `;
 
-  const page1=`<div class="pg">${hdr}<div class="bd">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:10px 0 10px">
+  const page1=`<div>${hdr}
+  <div class="content">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:12px 0">
       <div style="flex:1;max-width:58%">
         <div class="cli-name">${cName}</div>
         <div class="cli-addr">${addrLines.join("<br>")}</div>
         <div class="cli-contact">${cTel?`Tel: ${cTel}<br>`:""}${cEmail?`Email: ${cEmail}`:""}</div>
-      </div>${meta(1)}
+      </div>${meta("1 of 2")}
     </div>
-    <div style="margin-bottom:10px;font-size:11pt">Dear <strong>${cAttn||"Sir/Madam"},</strong></div>
-    <div style="font-size:11pt;font-weight:700;margin:8px 0 8px;text-align:center">QUOTATION FOR SCHEDULED WASTE TRANSPORTATION AND TREATMENT WITH ER2E</div>
+    <div style="font-size:11pt;margin-bottom:10px">Dear <strong>${cAttn||"Sir/Madam"},</strong></div>
+    <div style="font-size:11pt;font-weight:700;margin:8px 0;text-align:left"><strong>QUOTATION FOR SCHEDULED WASTE TRANSPORTATION AND TREATMENT WITH ER2E</strong></div>
     <div class="intro">We would like to take this opportunity to express our gratitude for your support and trust in <strong>Econas Resource to Energy Sdn. Bhd. [ER2E]</strong>. We are pleased to offer our competitive rates for Scheduled Waste management services.</div>
-    <table><thead><tr><th style="width:5%">No</th><th style="width:11%">Item Code</th><th style="width:25%">Waste Name</th><th style="width:15%">Treatment Type</th><th style="width:13%">Waste Form</th><th style="width:8%">OUM</th><th style="width:23%;text-align:right">Charge (RM)</th></tr></thead><tbody>${tableRows}</tbody></table>
+    <table><thead><tr>
+      <th style="width:5%">No</th><th style="width:11%">Item Code</th><th style="width:24%">Waste Name</th>
+      <th style="width:15%">Treatment Type</th><th style="width:12%">Waste Form</th>
+      <th style="width:7%">OUM</th><th style="width:26%;text-align:right">Charge (RM)</th>
+    </tr></thead><tbody>${tableRows}</tbody></table>
     <div class="tc-title">Terms and Conditions:</div>
-    <ol>${tcFinal.map(t=>`<li>${t}</li>`).join("")}</ol>
-  </div>
-  <div class="ft"><span>QUOT.NO: ${quotNo}</span><span>Page 1 of 2 &nbsp;|&nbsp; Dept: Marketing &nbsp;|&nbsp; Date: ${dateStr}</span></div>
-  <div class="fbar"></div></div>`;
+    <ol>${tcFinal.map(t=>`<li style="margin-bottom:4px">${t}</li>`).join("")}</ol>
 
-  const page2=`<div class="pg">${hdr}<div class="bd">
-    <div style="display:flex;justify-content:flex-end;margin:10px 0 14px">${meta(2)}</div>
-    <div style="font-size:11pt;line-height:1.7;margin-bottom:10px">We hope that our quotation is favourable to you, and we are looking forward to receiving your valued orders. Should you require further clarification, please do not hesitate to contact us.<br><br>Thank you</div>
-  </div>
-  <div style="position:absolute;bottom:28px;left:29px;right:29px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:10pt">
+    <!-- Closing paragraph — flows naturally after T&C -->
+    <div style="font-size:11pt;line-height:1.7;margin-top:16px">
+      We hope that our quotation is favourable to you, and we are looking forward to receiving your valued orders.
+      Should you require further clarification, please do not hesitate to contact us.
+    </div>
+    <div style="font-size:11pt;margin-top:10px">Thank you</div>
+
+    <!-- Signature block — flows below closing, page break avoided inside -->
+    <div class="sig-grid" style="page-break-inside:avoid;margin-top:16px">
       <div>
         <div style="font-size:10pt;margin-bottom:2px">Yours sincerely,</div>
         <div style="font-size:10pt;margin-bottom:2px">For and on behalf of,</div>
-        <div style="font-weight:700;font-size:11pt;margin-bottom:4px">Econas Resource To Energy Sdn. Bhd</div>
-        <div style="position:relative;height:82px">
-          <img src="${SIG_URL}" style="position:absolute;bottom:0;left:0;height:72px;mix-blend-mode:multiply;opacity:0.85" onerror="this.style.display='none'">
-          <img src="${COP_URL}" style="position:absolute;bottom:-8px;left:52px;height:82px;mix-blend-mode:multiply;opacity:0.75" onerror="this.style.display='none'">
+        <div style="font-weight:700;font-size:11pt;margin-bottom:6px">Econas Resource To Energy Sdn. Bhd</div>
+        <div style="position:relative;height:80px">
+          <img src="${SIG_URL}" style="position:absolute;bottom:0;left:0;height:70px;mix-blend-mode:multiply;opacity:0.85" onerror="this.style.display='none'">
+          <img src="${COP_URL}" style="position:absolute;bottom:-6px;left:50px;height:80px;mix-blend-mode:multiply;opacity:0.75" onerror="this.style.display='none'">
         </div>
-        <div style="border-top:1px solid #111;width:230px;margin-bottom:4px"></div>
+        <div style="border-top:1px solid #111;width:240px;margin:2px 0 4px"></div>
         <div style="font-weight:700;font-size:10pt">ROMY EADUKA BIN SHAHRUDDIN</div>
         <div style="font-size:9pt;color:#444;margin-top:2px">Head of Sales, Marketing, Business Development &amp; Liaison</div>
       </div>
       <div>
         <div style="font-size:10pt;margin-bottom:2px">Accepted and agreed by,</div>
-        <div style="font-weight:700;font-size:11pt;margin-bottom:4px">${cName}</div>
-        <div style="height:82px"></div>
-        <div style="border-top:1px solid #111;width:100%;margin-bottom:10px"></div>
-        <div style="font-size:11pt;font-weight:500;margin-bottom:20px">Name: ___________________________</div>
-        <div style="font-size:11pt;font-weight:500">Date: &nbsp;&nbsp;&nbsp;___________________________</div>
+        <div style="font-weight:700;font-size:11pt;margin-bottom:6px">${cName}</div>
+        <div style="height:80px"></div>
+        <div style="border-top:1px solid #111;width:100%;margin:2px 0 12px"></div>
+        <div style="font-size:11pt;font-weight:500;margin-bottom:22px">Name:&nbsp; _________________________</div>
+        <div style="font-size:11pt;font-weight:500">Date: &nbsp;&nbsp; _________________________</div>
       </div>
     </div>
+    <div style="height:20px"></div>
   </div>
-  <div class="ft"><span>QUOT.NO: ${quotNo}</span><span>Page 2 of 2 &nbsp;|&nbsp; Dept: Marketing &nbsp;|&nbsp; Date: ${dateStr}</span></div>
-  <div class="fbar"></div></div>`;
+
+  <!-- Fixed footer bar + footer text on every page -->
+  <div class="footer-line">
+    <span>QUOT.NO: ${quotNo}</span>
+    <span>Dept: Marketing &nbsp;|&nbsp; Currency: MYR &nbsp;|&nbsp; Date: ${dateStr}</span>
+  </div>
+  <div class="fbar-wrap"><div class="fbar"></div></div>
+  </div>`;
 
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${css}</style></head><body>${page1}${page2}</body></html>`;
   const w=window.open('','_blank','width=900,height=700');
