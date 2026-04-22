@@ -605,83 +605,92 @@ function generatePDF(){
   const pdfCSS=`
     @page { size:A4; margin:20mm 20mm 22mm 20mm; }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:Arial,Helvetica,sans-serif; font-size:11pt; color:#111; background:#fff; }
+    body { font-family:'Calibri',Calibri,sans-serif; font-size:10pt; color:#111; background:#fff; }
 
-    /* ── HEADER ── repeats on each page via fixed header trick */
+    /* ── HEADER — repeats on every page ── */
     .doc-header {
       display:flex; justify-content:space-between; align-items:flex-start;
       border-bottom:2.5px solid #0a5c2e; padding-bottom:10px; margin-bottom:14px;
+      page-break-inside:avoid;
     }
-    .co-name { font-size:10.5pt; font-weight:700; }
-    .co-info { font-size:7.5pt; color:#444; margin-top:3px; line-height:1.65; }
+    .pg2-header { margin-top:0; }
+    .co-name { font-family:'Calibri',Calibri,sans-serif; font-size:10.5pt; font-weight:700; }
+    .co-info { font-family:'Calibri',Calibri,sans-serif; font-size:7.5pt; color:#444; margin-top:3px; line-height:1.55; }
     .er2e-logo { height:48px; object-fit:contain; }
 
     /* ── CLIENT + META ROW ── */
-    .top-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+    .top-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
     .cli-block { flex:1; max-width:58%; }
     .cli-name  { font-size:12pt; font-weight:700; line-height:1.3; }
-    .cli-addr  { font-size:12pt; line-height:1.65; margin-top:2px; }
-    .cli-contact { font-size:10pt; margin-top:4px; line-height:1.6; }
-    .meta-block { text-align:right; font-size:8pt; line-height:1.85; flex-shrink:0; }
+    .cli-addr  { font-size:12pt; line-height:1.55; margin-top:2px; }
+    .cli-contact { font-size:10pt; margin-top:4px; line-height:1.5; }
+    .meta-block { text-align:right; font-size:8pt; line-height:1.75; flex-shrink:0; }
     .meta-block .qno { font-size:11pt; font-weight:700; display:block; }
 
     /* ── BODY TEXT ── */
-    .dear     { font-size:11pt; margin-bottom:10px; }
-    .subject  { font-size:11pt; font-weight:700; margin-bottom:10px; }
-    .intro    { font-size:11pt; line-height:1.65; margin-bottom:14px; }
+    .dear    { font-size:10pt; margin-bottom:8px; }
+    .subject { font-size:10pt; font-weight:700; margin-bottom:8px; }
+    .intro   { font-size:10pt; line-height:1.55; margin-bottom:12px; }
 
     /* ── TABLE ── */
-    table { width:100%; border-collapse:collapse; font-size:10.5pt; margin-bottom:16px; }
-    th { background:#073d1e; color:#fff; padding:7px 8px; font-weight:600; font-size:10.5pt; border:1px solid #073d1e; }
-    td { padding:6px 8px; border:1px solid #bbb; vertical-align:middle; }
+    table { width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:14px; }
+    th { background:#073d1e; color:#fff; padding:6px 8px; font-weight:700; font-size:10pt; border:1px solid #073d1e; }
+    td { padding:5px 8px; border:1px solid #bbb; vertical-align:middle; font-size:10pt; }
     tr:nth-child(even) td { background:#f5f5f5; }
 
     /* ── TERMS ── */
-    .tc-title { font-size:11pt; font-weight:700; margin-bottom:8px; }
-    ol { padding-left:18px; font-size:11pt; line-height:1.75; }
-    ol li { margin-bottom:4px; }
+    .tc-title { font-size:10pt; font-weight:700; margin-bottom:6px; }
+    ol { padding-left:22px; font-size:10pt; line-height:1.15; list-style-type:decimal; }
+    ol li { margin-bottom:5px; padding-left:2px; }
 
     /* ── SIGNATURE ── */
-    .sig-section { page-break-inside:avoid; margin-top:20px; }
-    .closing { font-size:11pt; line-height:1.75; margin-bottom:14px; }
-    .sig-grid { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+    .sig-section { page-break-inside:avoid; margin-top:18px; }
+    .closing { font-size:10pt; line-height:1.55; margin-bottom:12px; }
+    .sig-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
     .sig-left, .sig-right { font-size:10pt; }
     .sig-yourssincerely { font-size:10pt; margin-bottom:1px; }
     .sig-behalf { font-size:10pt; margin-bottom:3px; }
-    .sig-company { font-size:11pt; font-weight:700; margin-bottom:8px; }
-    .sig-img-wrap { position:relative; height:84px; margin-bottom:2px; }
+    .sig-company { font-size:10pt; font-weight:700; margin-bottom:6px; }
+    .sig-img-wrap { position:relative; height:82px; margin-bottom:2px; }
     .sig-line { border-top:1px solid #111; margin-bottom:5px; }
     .sig-name { font-weight:700; font-size:10pt; }
-    .sig-title { font-size:8.5pt; color:#444; margin-top:2px; }
+    .sig-designation { font-size:8.5pt; color:#444; margin-top:2px; }
     .acc-behalf { font-size:10pt; margin-bottom:3px; }
-    .acc-company { font-size:11pt; font-weight:700; margin-bottom:8px; }
-    .acc-space { height:84px; }
-    .acc-name { font-size:11pt; margin-bottom:18px; }
-    .acc-date { font-size:11pt; }
+    .acc-company { font-size:10pt; font-weight:700; margin-bottom:6px; }
+    .acc-space { height:82px; }
+    .acc-line { border-top:1px solid #111; margin-bottom:5px; }
+    .acc-name { font-size:10pt; margin-bottom:18px; }
+    .acc-date { font-size:10pt; }
 
     /* ── FOOTER ── */
-    .doc-footer { margin-top:16px; padding-top:5px; border-top:0.5px solid #ccc; display:flex; justify-content:space-between; font-size:7pt; color:#666; }
+    .doc-footer { margin-top:14px; padding-top:5px; border-top:0.5px solid #ccc; display:flex; justify-content:space-between; font-size:7pt; color:#666; }
     .green-bar { height:10px; background:linear-gradient(90deg,#0a5c2e 55%,#7ccc9e 100%); margin-top:4px; }
+
+    /* ── PAGE BREAK ── */
+    .page-break { page-break-before:always; padding-top:0; }
   `;
+
+  const headerHTML=`
+    <div class="doc-header">
+      <div>
+        <div class="co-name">ECONAS RESOURCE TO ENERGY SDN. BHD.</div>
+        <div class="co-info">
+          (COMPANY NO: 201901020492/1329821-V)<br>
+          Unit 18-03, Level 18, Menara Zurich, No.15, Jalan Dato' Abdullah Tahir,<br>
+          80300 Johor Bahru, Johor.<br>
+          <strong>Tel:</strong> +607-338 2004 &nbsp; <strong>Fax:</strong> +607-335 8004
+        </div>
+      </div>
+      <img src="${LOGO_URL}" class="er2e-logo" onerror="this.style.display='none'">
+    </div>`;
 
   const html=`<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <style>${pdfCSS}</style>
 </head><body>
 
-  <!-- HEADER -->
-  <div class="doc-header">
-    <div>
-      <div class="co-name">ECONAS RESOURCE TO ENERGY SDN. BHD.</div>
-      <div class="co-info">
-        (COMPANY NO: 201901020492/1329821-V)<br>
-        Unit 18-03, Level 18, Menara Zurich, No.15, Jalan Dato' Abdullah Tahir,<br>
-        80300 Johor Bahru, Johor.<br>
-        <strong>Tel:</strong> +607-338 2004 &nbsp; <strong>Fax:</strong> +607-335 8004
-      </div>
-    </div>
-    <img src="${LOGO_URL}" class="er2e-logo" onerror="this.style.display='none'">
-  </div>
+  <!-- PAGE 1 HEADER -->
+  ${headerHTML}
 
   <!-- CLIENT + QUOT META -->
   <div class="top-row">
@@ -736,45 +745,64 @@ function generatePDF(){
     ${tcFinal.map(t=>`<li>${t}</li>`).join("\n    ")}
   </ol>
 
-  <!-- SIGNATURE — page-break-inside:avoid keeps it together -->
-  <div class="sig-section">
-    <div class="closing">
-      We hope that our quotation is favourable to you, and we are looking forward to receiving your valued orders.
-      Should you require further clarification, please do not hesitate to contact us.<br><br>
-      Thank you
-    </div>
-    <div class="sig-grid">
-      <!-- ER2E side -->
-      <div class="sig-left">
-        <div class="sig-yourssincerely">Yours sincerely,</div>
-        <div class="sig-behalf">For and on behalf of,</div>
-        <div class="sig-company">Econas Resource To Energy Sdn. Bhd</div>
-        <div class="sig-img-wrap">
-          <img src="${SIG_URL}" style="position:absolute;bottom:0;left:0;height:72px;mix-blend-mode:multiply;opacity:0.85" onerror="this.style.display='none'">
-          <img src="${COP_URL}" style="position:absolute;bottom:-6px;left:50px;height:82px;mix-blend-mode:multiply;opacity:0.75" onerror="this.style.display='none'">
-        </div>
-        <div class="sig-line" style="width:240px"></div>
-        <div class="sig-name">ROMY EADUKA BIN SHAHRUDDIN</div>
-        <div class="sig-title">Head of Sales, Marketing, Business Development &amp; Liaison</div>
-      </div>
-      <!-- Client side -->
-      <div class="sig-right">
-        <div class="acc-behalf">Accepted and agreed by,</div>
-        <div class="acc-company">${cName}</div>
-        <div class="acc-space"></div>
-        <div class="sig-line"></div>
-        <div class="acc-name">Name: &nbsp;___________________________</div>
-        <div class="acc-date">Date: &nbsp;&nbsp; ___________________________</div>
-      </div>
-    </div>
-  </div>
+  <!-- PAGE BREAK — page 2 starts here -->
+  <div class="page-break">
 
-  <!-- FOOTER -->
-  <div class="doc-footer">
-    <span>QUOT.NO: ${quotNo}</span>
-    <span>Dept: Marketing &nbsp;|&nbsp; Currency: MYR &nbsp;|&nbsp; Date: ${dateStr}</span>
-  </div>
-  <div class="green-bar"></div>
+    <!-- PAGE 2 HEADER — letterhead repeats -->
+    ${headerHTML}
+
+    <!-- PAGE 2 META (right-aligned only) -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <div class="meta-block">
+        <div><strong>QUOT.NO:</strong><br><span class="qno">${quotNo}</span></div>
+        <div style="margin-top:4px"><strong>Page No</strong><br>2 of 2</div>
+        <div><strong>Dept</strong><br>Marketing</div>
+        <div><strong>Currency</strong><br>MYR</div>
+        <div><strong>Date</strong><br>${dateStr}</div>
+      </div>
+    </div>
+
+    <!-- CLOSING + SIGNATURE -->
+    <div class="sig-section">
+      <div class="closing">
+        We hope that our quotation is favourable to you, and we are looking forward to receiving your valued orders.
+        Should you require further clarification, please do not hesitate to contact us.<br><br>
+        Thank you
+      </div>
+      <div class="sig-grid">
+        <!-- ER2E side -->
+        <div class="sig-left">
+          <div class="sig-yourssincerely">Yours sincerely,</div>
+          <div class="sig-behalf">For and on behalf of,</div>
+          <div class="sig-company">Econas Resource To Energy Sdn. Bhd</div>
+          <div class="sig-img-wrap">
+            <img src="${SIG_URL}" style="position:absolute;bottom:0;left:0;height:70px;mix-blend-mode:multiply;opacity:0.85" onerror="this.style.display='none'">
+            <img src="${COP_URL}" style="position:absolute;bottom:-6px;left:48px;height:80px;mix-blend-mode:multiply;opacity:0.75" onerror="this.style.display='none'">
+          </div>
+          <div class="sig-line" style="width:240px"></div>
+          <div class="sig-name">ROMY EADUKA BIN SHAHRUDDIN</div>
+          <div class="sig-designation">Head of Sales, Marketing, Business Development &amp; Liaison</div>
+        </div>
+        <!-- Client side — aligned to match left -->
+        <div class="sig-right">
+          <div class="acc-behalf">Accepted and agreed by,</div>
+          <div class="acc-company">${cName}</div>
+          <div class="acc-space"></div>
+          <div class="acc-line"></div>
+          <div class="acc-name">Name: &nbsp;___________________________</div>
+          <div class="acc-date">Date: &nbsp;&nbsp;&nbsp;___________________________</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2 FOOTER -->
+    <div class="doc-footer">
+      <span>QUOT.NO: ${quotNo}</span>
+      <span>Dept: Marketing &nbsp;|&nbsp; Currency: MYR &nbsp;|&nbsp; Date: ${dateStr}</span>
+    </div>
+    <div class="green-bar"></div>
+
+  </div><!-- end page-break -->
 
 </body></html>`;
 
